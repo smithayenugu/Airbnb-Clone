@@ -1,0 +1,42 @@
+digraph marketplace {
+  graph [bgcolor="white", pad="0.25", nodesep="0.45", ranksep="0.7", fontname="Arial"];
+  node [shape=box, style="rounded,filled", fillcolor="#fff7fb", color="#e31c5f", fontname="Arial", fontsize=11, margin="0.16,0.10"];
+  edge [color="#555555", penwidth=1.2, arrowsize=0.7, fontname="Arial", fontsize=9];
+
+  user [label="User", fillcolor="#222222", fontcolor="white"];
+  cdn [label="CDN / Edge\nStatic assets + caching"];
+  frontend [label="Frontend\nReact web application"];
+  gateway [label="API Gateway\nAuth, rate limits, routing"];
+  lb [label="Load Balancer", fillcolor="#f3f3f3", color="#777777"];
+  deploy [label="Container / Serverless\ndeployment", fillcolor="#f3f3f3", color="#777777"];
+  monitor [label="Monitoring + Logging", fillcolor="#f3f3f3", color="#777777"];
+
+  subgraph cluster_services {
+    label="Backend Services"; color="#dddddd"; style="rounded"; fontname="Arial";
+    auth [label="Authentication"];
+    property [label="Property Service"];
+    booking [label="Booking Service"];
+    user_service [label="User Service"];
+    payment [label="Payment Service"];
+    search [label="Search Service"];
+    review [label="Review Service"];
+    notification [label="Notification Service"];
+  }
+
+  subgraph cluster_data {
+    label="Data / Storage"; color="#dddddd"; style="rounded"; fontname="Arial";
+    postgres [label="PostgreSQL", fillcolor="#f5fbff", color="#3182ce"];
+    redis [label="Redis", fillcolor="#f5fbff", color="#3182ce"];
+    object [label="Object Storage", fillcolor="#f5fbff", color="#3182ce"];
+    index [label="Search Index", fillcolor="#f5fbff", color="#3182ce"];
+    queue [label="Message Queue", fillcolor="#f5fbff", color="#3182ce"];
+  }
+
+  user -> cdn -> frontend -> gateway -> lb -> deploy;
+  gateway -> auth; gateway -> property; gateway -> booking; gateway -> user_service;
+  gateway -> payment; gateway -> search; gateway -> review; gateway -> notification;
+  auth -> postgres; property -> postgres; booking -> postgres; user_service -> postgres;
+  review -> postgres; payment -> queue; notification -> queue; booking -> redis;
+  property -> object; search -> index; property -> index; booking -> queue;
+  deploy -> monitor; gateway -> monitor; queue -> notification;
+}
